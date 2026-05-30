@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   ShieldCheck, Info, Sparkles, TrendingUp, AlertTriangle, 
   Layers, Lock, Github, CheckCircle2, ChevronRight, HelpCircle,
-  BookOpen, Plus
+  BookOpen, Plus, Palette
 } from 'lucide-react';
 import { Subscription } from './types';
 import MetricCards from './components/MetricCards';
@@ -10,11 +10,21 @@ import QuickAddForm from './components/QuickAddForm';
 import SaaSPresetsCatalog from './components/SaaSPresetsCatalog';
 import SubscriptionList from './components/SubscriptionList';
 import PrivacyBanner from './components/PrivacyBanner';
+import BobsWhiteboardAdvisor from './components/BobsWhiteboardAdvisor';
+import { getMonthlyEquivalent } from './utils';
 
 const LOCAL_STORAGE_KEY = 'saas-auditor-subs';
 
 export default function App() {
   const [controlMode, setControlMode] = useState<'library' | 'manual'>('library');
+  const [isWhiteboardMode, setIsWhiteboardMode] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('subslash_whiteboard_mode');
+      return saved === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   const [subscriptions, setSubscriptions] = useState<Subscription[]>(() => {
     try {
@@ -136,23 +146,39 @@ export default function App() {
     }
   };
 
-  const totalActiveCostMonthly = subscriptions
-    .filter(s => s.status === 'active')
-    .length;
+  const activeSubs = subscriptions.filter(s => s.status === 'active');
+  const activeMonthlyBurn = activeSubs.reduce((acc, sub) => {
+    return acc + getMonthlyEquivalent(sub.cost, sub.billingCycle);
+  }, 0);
 
   return (
-    <div className="min-h-screen bg-slate-50/70 py-10 px-4 sm:px-6 lg:px-8 font-sans antialiased text-slate-900" id="auditor-app">
+    <div 
+      className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 font-sans antialiased text-slate-900 transition-all duration-300"
+      style={isWhiteboardMode ? {
+        backgroundColor: '#FCFAF2',
+        backgroundImage: `
+          linear-gradient(to right, #e2e8f0 1.2px, transparent 1.2px),
+          linear-gradient(to bottom, #e2e8f0 1.2px, transparent 1.2px)
+        `,
+        backgroundSize: '24px 24px',
+      } : {
+        backgroundColor: '#f8fafc',
+      }}
+      id="auditor-app"
+    >
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* Navigation / Header Brand Bar */}
-        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100" id="brand-header">
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/60" id="brand-header">
           <div className="flex items-center space-x-3.5">
-            <div className="p-3 bg-indigo-600 text-white rounded-2xl shadow-xs">
+            <div className={`p-3 rounded-2xl shadow-xs transition-colors duration-300 ${isWhiteboardMode ? 'bg-amber-400 text-slate-900 border border-slate-900' : 'bg-indigo-600 text-white'}`}>
               <Layers size={24} className="stroke-[2.5]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-indigo-100/50 uppercase tracing-wider">SaaS Utility</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider ${isWhiteboardMode ? 'bg-yellow-100 text-slate-800 border-yellow-200' : 'bg-indigo-50 text-indigo-700 border-indigo-100/50'}`}>
+                  Bob Invests Edition
+                </span>
                 <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
                   <Lock size={10} /> LocalStorage Saved
                 </span>
@@ -162,9 +188,35 @@ export default function App() {
             </div>
           </div>
           
-          <div className="flex items-center space-x-3 text-xs text-slate-500 bg-white border border-slate-150 px-3.5 py-1.5 rounded-xl">
-            <ShieldCheck size={14} className="text-emerald-500" />
-            <span>Privacy Standard: <b>Zero-Network Ledger</b></span>
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Whiteboard Mode Toggle Switch */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsWhiteboardMode(prev => {
+                  const next = !prev;
+                  try {
+                    localStorage.setItem('subslash_whiteboard_mode', String(next));
+                  } catch {}
+                  return next;
+                });
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
+                isWhiteboardMode
+                  ? 'bg-yellow-300 hover:bg-yellow-400 text-slate-900 border-slate-900 shadow-[2.px_2px_0px_0px_rgba(15,23,42,1)] font-mono'
+                  : 'bg-white hover:bg-slate-50 text-slate-650 hover:text-slate-900 border-slate-200 shadow-3xs'
+              }`}
+              id="whiteboard-theme-toggle"
+              title="Toggle whiteboard sketch grid custom look"
+            >
+              <Palette size={13} className={isWhiteboardMode ? 'text-slate-900 animate-spin' : 'text-slate-400'} />
+              <span>{isWhiteboardMode ? "Whiteboard Theme" : "Classic Theme"}</span>
+            </button>
+
+            <div className="flex items-center space-x-3 text-xs text-slate-500 bg-white border border-slate-200 px-3.5 py-1.5 rounded-xl shadow-3xs">
+              <ShieldCheck size={14} className="text-emerald-500" />
+              <span>Privacy Standard: <b>Zero-Network Ledger</b></span>
+            </div>
           </div>
         </header>
 
@@ -180,13 +232,15 @@ export default function App() {
           <section className="lg:col-span-5 space-y-6" id="auditor-controls" aria-label="Auditor Controls">
             
             {/* Toggle Switcher tabs between Preset Catalog and Manual Form */}
-            <div className="bg-slate-100 p-1 rounded-xl flex items-center shadow-xs border border-slate-200/50" id="tool-mode-switcher">
+            <div className={`p-1 rounded-xl flex items-center shadow-xs border transition-colors ${isWhiteboardMode ? 'bg-amber-100/50 border-slate-900' : 'bg-slate-100 border-slate-200/50'}`} id="tool-mode-switcher">
               <button
                 type="button"
                 onClick={() => setControlMode('library')}
                 className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                   controlMode === 'library'
-                    ? 'bg-white text-indigo-700 shadow-xs font-bold'
+                    ? isWhiteboardMode
+                      ? 'bg-white text-slate-900 border-2 border-slate-900 font-black shadow-sm'
+                      : 'bg-white text-indigo-700 shadow-xs font-bold'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
@@ -198,7 +252,9 @@ export default function App() {
                 onClick={() => setControlMode('manual')}
                 className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                   controlMode === 'manual'
-                    ? 'bg-white text-indigo-700 shadow-xs font-bold'
+                    ? isWhiteboardMode
+                      ? 'bg-white text-slate-900 border-2 border-slate-900 font-black shadow-sm'
+                      : 'bg-white text-indigo-700 shadow-xs font-bold'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
@@ -214,8 +270,15 @@ export default function App() {
               <QuickAddForm onAdd={handleAddSubscription} />
             )}
 
+            {/* Bobby's Interactive Whiteboard Advisor Widget */}
+            <BobsWhiteboardAdvisor 
+              monthlyBurn={activeMonthlyBurn} 
+              activeCount={activeSubs.length} 
+              isWhiteboardMode={isWhiteboardMode} 
+            />
+
             {/* Quick Helper Tips Panel */}
-            <div className="bg-slate-550 bg-indigo-50/40 border border-indigo-100/60 rounded-2xl p-5 space-y-3.5" id="pro-tips-card">
+            <div className={`p-5 space-y-3.5 border rounded-2xl ${isWhiteboardMode ? 'bg-white border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]' : 'bg-indigo-50/40 border-indigo-100/60'}`} id="pro-tips-card">
               <h4 className="text-xs font-bold text-slate-800 uppercase tracking-widest font-mono flex items-center gap-1.5">
                 <Info size={13} className="text-indigo-600" /> Auditor Strategy
               </h4>
