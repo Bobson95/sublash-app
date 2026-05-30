@@ -1,6 +1,6 @@
 {
-  "name": "SaaS Subscription Auditor",
-  "description": "A privacy-first interactive calculator to audit SaaS subscription costs, view sticker shock projections, and export data securely.",
+  "name": "Bob's Sub Bleed Tracker",
+  "description": "An interactive whiteboard-themed subscription auditor for viewers of the Bob Invests YouTube channel to stop the subscription bleed & compound wealth.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

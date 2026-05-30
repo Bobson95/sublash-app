@@ -30,7 +30,9 @@ export default function App() {
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored) as Subscription[];
+        // Filter out legacy template demo items to start with a blank canvas for the user
+        return parsed.filter(sub => !sub.id.startsWith('demo-'));
       }
     } catch (e) {
       console.error('Failed to parse subscriptions from localStorage', e);
@@ -183,7 +185,7 @@ export default function App() {
                   <Lock size={10} /> LocalStorage Saved
                 </span>
               </div>
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight font-display mt-0.5">SubSlash</h1>
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight font-display mt-0.5">Bob's Sub Bleed Tracker</h1>
               <p className="text-xs font-semibold text-rose-600 mt-1 uppercase tracking-wider font-mono">Stop the subscription bleed</p>
             </div>
           </div>
