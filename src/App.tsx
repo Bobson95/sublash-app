@@ -1,18 +1,21 @@
 import { useState, useEffect } from 'react';
 import { 
   ShieldCheck, Info, Sparkles, TrendingUp, AlertTriangle, 
-  Layers, Lock, Github, CheckCircle2, ChevronRight, HelpCircle
+  Layers, Lock, Github, CheckCircle2, ChevronRight, HelpCircle,
+  BookOpen, Plus
 } from 'lucide-react';
 import { Subscription } from './types';
-import { INITIAL_SUBSCRIPTIONS } from './demoData';
 import MetricCards from './components/MetricCards';
 import QuickAddForm from './components/QuickAddForm';
+import SaaSPresetsCatalog from './components/SaaSPresetsCatalog';
 import SubscriptionList from './components/SubscriptionList';
 import PrivacyBanner from './components/PrivacyBanner';
 
 const LOCAL_STORAGE_KEY = 'saas-auditor-subs';
 
 export default function App() {
+  const [controlMode, setControlMode] = useState<'library' | 'manual'>('library');
+
   const [subscriptions, setSubscriptions] = useState<Subscription[]>(() => {
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -22,7 +25,7 @@ export default function App() {
     } catch (e) {
       console.error('Failed to parse subscriptions from localStorage', e);
     }
-    return INITIAL_SUBSCRIPTIONS;
+    return []; // Start clean by default to let the user choose which tools to add
   });
 
   // Sync to localstorage
@@ -126,10 +129,10 @@ export default function App() {
 
   const handleReset = () => {
     const confirmReset = window.confirm(
-      'Are you sure you want to clear your current subscriptions and reload the standard baseline demo outlays?'
+      'Are you sure you want to clear your current subscriptions and start completely fresh?'
     );
     if (confirmReset) {
-      setSubscriptions(INITIAL_SUBSCRIPTIONS);
+      setSubscriptions([]);
     }
   };
 
@@ -175,8 +178,41 @@ export default function App() {
           
           {/* Left Column: Form Tools (Large Screen Span: 5) */}
           <section className="lg:col-span-5 space-y-6" id="auditor-controls" aria-label="Auditor Controls">
-            {/* Quick-Add Form Card */}
-            <QuickAddForm onAdd={handleAddSubscription} />
+            
+            {/* Toggle Switcher tabs between Preset Catalog and Manual Form */}
+            <div className="bg-slate-100 p-1 rounded-xl flex items-center shadow-xs border border-slate-200/50" id="tool-mode-switcher">
+              <button
+                type="button"
+                onClick={() => setControlMode('library')}
+                className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  controlMode === 'library'
+                    ? 'bg-white text-indigo-700 shadow-xs font-bold'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <BookOpen size={13} className="text-indigo-600" />
+                SaaS Presets Catalog
+              </button>
+              <button
+                type="button"
+                onClick={() => setControlMode('manual')}
+                className={`flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  controlMode === 'manual'
+                    ? 'bg-white text-indigo-700 shadow-xs font-bold'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Plus size={13} className="text-indigo-600" />
+                Custom Manual Add
+              </button>
+            </div>
+
+            {/* Conditionally Render selected tool input */}
+            {controlMode === 'library' ? (
+              <SaaSPresetsCatalog onAdd={handleAddSubscription} existingSubs={subscriptions} />
+            ) : (
+              <QuickAddForm onAdd={handleAddSubscription} />
+            )}
 
             {/* Quick Helper Tips Panel */}
             <div className="bg-slate-550 bg-indigo-50/40 border border-indigo-100/60 rounded-2xl p-5 space-y-3.5" id="pro-tips-card">
