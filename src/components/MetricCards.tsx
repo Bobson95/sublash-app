@@ -7,9 +7,10 @@ import { ALTERNATIVE_INVESTMENTS } from '../demoData';
 
 interface MetricCardsProps {
   subscriptions: Subscription[];
+  isDark?: boolean;
 }
 
-export default function MetricCards({ subscriptions }: MetricCardsProps) {
+export default function MetricCards({ subscriptions, isDark = false }: MetricCardsProps) {
   const [projectionYears, setProjectionYears] = useState<number>(5);
   const [targetBudget, setTargetBudget] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -91,31 +92,35 @@ export default function MetricCards({ subscriptions }: MetricCardsProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
       {/* Monthly Outflow Card */}
-      <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-xs relative overflow-hidden transition-all duration-300 hover:shadow-md hover:border-slate-200" id="card-monthly">
-        <div className="absolute right-0 top-0 w-24 h-24 bg-rose-50 rounded-bl-full opacity-60 pointer-events-none" />
+      <div className={`rounded-2xl border p-6 shadow-xs relative overflow-hidden transition-all duration-300 hover:shadow-md ${
+        isDark 
+          ? 'bg-slate-900 border-slate-800 hover:border-slate-700' 
+          : 'bg-white border-slate-100 hover:border-slate-200'
+      }`} id="card-monthly">
+        <div className={`absolute right-0 top-0 w-24 h-24 rounded-bl-full opacity-60 pointer-events-none ${isDark ? 'bg-slate-950/40' : 'bg-rose-50'}`} />
         <div className="flex items-center space-x-3 mb-4">
-          <div className="p-3 bg-rose-50 text-rose-600 rounded-xl">
+          <div className={`p-3 rounded-xl ${isDark ? 'bg-rose-950/40 text-rose-400 border border-rose-900/40' : 'bg-rose-50 text-rose-600'}`}>
             <Clock size={20} className="stroke-[2.5]" />
           </div>
           <span className="text-xs font-semibold text-slate-500 tracking-wider uppercase font-display">Monthly Burn Rate</span>
         </div>
         
         <div className="flex items-baseline space-x-1">
-          <span className="text-4xl font-extrabold tracking-tight text-slate-900 font-display">
+          <span className={`text-4xl font-extrabold tracking-tight font-display ${isDark ? 'text-white' : 'text-slate-900'}`}>
             {formatCurrency(totalMonthly)}
           </span>
           <span className="text-slate-500 text-sm font-medium">/ mo</span>
         </div>
         
         <p className="mt-2 text-xs text-slate-500">
-          Spread across <span className="font-semibold text-rose-600">{activeSubs.length}</span> active subscription{activeSubs.length === 1 ? '' : 's'}.
+          Spread across <span className="font-semibold text-rose-500">{activeSubs.length}</span> active subscription{activeSubs.length === 1 ? '' : 's'}.
         </p>
 
-        <div className="mt-4 pt-4 border-t border-slate-100/80">
+        <div className={`mt-4 pt-4 border-t ${isDark ? 'border-slate-800' : 'border-slate-100/80'}`}>
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-display">Target Budget Limit</span>
             {targetBudget && budgetNum > 0 && (
-              <span className={`text-[11px] font-bold ${totalMonthly > budgetNum ? 'text-rose-600 animate-pulse' : 'text-emerald-600'}`}>
+              <span className={`text-[11px] font-bold ${totalMonthly > budgetNum ? 'text-rose-500 animate-pulse' : 'text-emerald-500'}`}>
                 {totalMonthly > budgetNum 
                   ? `Over limit by ${formatCurrency(totalMonthly - budgetNum)}` 
                   : `${percentage.toFixed(0)}% Utilized`}
@@ -125,7 +130,7 @@ export default function MetricCards({ subscriptions }: MetricCardsProps) {
 
           {/* Dynamic Budget Progress Bar */}
           {targetBudget && budgetNum > 0 ? (
-            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-3.5 relative" title={`${percentage.toFixed(0)}% of your target budget used`}>
+            <div className={`w-full h-2 rounded-full overflow-hidden mb-3.5 relative ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`} title={`${percentage.toFixed(0)}% of your target budget used`}>
               <div 
                 className={`h-full transition-all duration-500 ease-out rounded-full ${
                   totalMonthly > budgetNum ? 'bg-rose-500' : percentage >= 85 ? 'bg-amber-500' : 'bg-emerald-500'
@@ -160,7 +165,11 @@ export default function MetricCards({ subscriptions }: MetricCardsProps) {
                   // Fallback safe
                 }
               }}
-              className="block w-full rounded-lg border border-slate-100 bg-slate-50/50 py-1.5 pl-5 pr-12 text-xs text-slate-800 placeholder:text-slate-400 focus:border-rose-500/50 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-rose-500/20 transition-all font-mono"
+              className={`block w-full rounded-lg border py-1.5 pl-5 pr-12 text-xs placeholder:text-slate-500 focus:border-rose-500/50 focus:outline-hidden focus:ring-1 focus:ring-rose-500/20 transition-all font-mono ${
+                isDark 
+                  ? 'bg-slate-950 border-slate-800 text-slate-200 focus:bg-slate-900' 
+                  : 'bg-slate-50/50 border-slate-100 text-slate-800 focus:bg-white'
+              }`}
             />
             {targetBudget && (
               <button
@@ -173,7 +182,7 @@ export default function MetricCards({ subscriptions }: MetricCardsProps) {
                     // Fallback safe
                   }
                 }}
-                className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-slate-400 hover:text-rose-600 text-[10px] font-bold uppercase cursor-pointer transition-colors"
+                className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-slate-400 hover:text-rose-500 text-[10px] font-bold uppercase cursor-pointer transition-colors"
                 id="clear-budget-btn"
                 title="Clear budget limit"
               >
@@ -185,16 +194,20 @@ export default function MetricCards({ subscriptions }: MetricCardsProps) {
       </div>
 
       {/* Yearly Outflow Card */}
-      <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-xs relative overflow-hidden transition-all duration-300 hover:shadow-md hover:border-slate-200" id="card-yearly">
-        <div className="absolute right-0 top-0 w-24 h-24 bg-violet-50 rounded-bl-full opacity-60 pointer-events-none" />
+      <div className={`rounded-2xl border p-6 shadow-xs relative overflow-hidden transition-all duration-300 hover:shadow-md ${
+        isDark 
+          ? 'bg-slate-900 border-slate-800 hover:border-slate-700' 
+          : 'bg-white border-slate-100 hover:border-slate-200'
+      }`} id="card-yearly">
+        <div className={`absolute right-0 top-0 w-24 h-24 rounded-bl-full opacity-60 pointer-events-none ${isDark ? 'bg-slate-950/40' : 'bg-violet-50'}`} />
         <div className="flex items-center space-x-3 mb-4">
-          <div className="p-3 bg-violet-50 text-violet-600 rounded-xl">
+          <div className={`p-3 rounded-xl ${isDark ? 'bg-violet-950/40 text-violet-400 border border-violet-900/40' : 'bg-violet-50 text-violet-600'}`}>
             <DollarSign size={20} className="stroke-[2.5]" />
           </div>
           <span className="text-xs font-semibold text-slate-500 tracking-wider uppercase font-display">Yearly Outplay</span>
         </div>
         <div className="flex items-baseline space-x-1">
-          <span className="text-4xl font-extrabold tracking-tight text-slate-900 font-display">
+          <span className={`text-4xl font-extrabold tracking-tight font-display ${isDark ? 'text-white' : 'text-slate-900'}`}>
             {formatCurrency(totalYearly)}
           </span>
           <span className="text-slate-500 text-sm font-medium">/ yr</span>

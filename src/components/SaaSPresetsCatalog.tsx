@@ -6,6 +6,7 @@ import { CATEGORIES } from '../demoData';
 interface SaaSPresetsCatalogProps {
   onAdd: (sub: Omit<Subscription, 'id'>) => void;
   existingSubs: Subscription[];
+  isDark?: boolean;
 }
 
 export interface PresetTool {
@@ -182,7 +183,7 @@ const COMMON_PRESETS: PresetTool[] = [
   }
 ];
 
-export default function SaaSPresetsCatalog({ onAdd, existingSubs }: SaaSPresetsCatalogProps) {
+export default function SaaSPresetsCatalog({ onAdd, existingSubs, isDark = false }: SaaSPresetsCatalogProps) {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   
@@ -274,19 +275,25 @@ export default function SaaSPresetsCatalog({ onAdd, existingSubs }: SaaSPresetsC
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-xs" id="presets-catalog-card">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-slate-100/80 pb-3">
+    <div className={`rounded-2xl border p-5 shadow-xs transition-all duration-300 ${
+      isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-100 text-slate-900'
+    }`} id="presets-catalog-card">
+      <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b pb-3 ${
+        isDark ? 'border-slate-800' : 'border-slate-100/80'
+      }`}>
         <div>
-          <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2 font-display">
-            <ShoppingBag size={18} className="text-indigo-600" />
+          <h3 className={`text-sm font-semibold flex items-center gap-2 font-display ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            <ShoppingBag size={18} className="text-indigo-500" />
             Common SaaS Library
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">Customize and append popular SaaS tools with 1-click.</p>
         </div>
-        <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest font-mono self-start sm:self-auto bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">Catalog</span>
+        <span className={`text-[10px] font-semibold uppercase tracking-widest font-mono self-start sm:self-auto border px-2 py-0.5 rounded-md ${
+          isDark ? 'bg-slate-950 border-slate-800 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-400'
+        }`}>Catalog</span>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3 font-sans">
         {/* Search and Filters */}
         <div className="space-y-2">
           {/* Dynamic Search Bar */}
@@ -299,7 +306,11 @@ export default function SaaSPresetsCatalog({ onAdd, existingSubs }: SaaSPresetsC
               placeholder="Search common subscriptions (e.g. Figma, GitHub)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-8 pr-3.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-sans"
+              className={`w-full pl-8 pr-3.5 py-1.5 text-xs rounded-xl focus:outline-hidden focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-sans ${
+                isDark 
+                  ? 'bg-slate-950 border-slate-800 text-slate-200 focus:bg-slate-900 placeholder:text-slate-600' 
+                  : 'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white placeholder:text-slate-400'
+              }`}
             />
           </div>
 
@@ -308,10 +319,14 @@ export default function SaaSPresetsCatalog({ onAdd, existingSubs }: SaaSPresetsC
             <button
               type="button"
               onClick={() => setSelectedCategory('All')}
-              className={`px-2.5 py-1 text-[11px] font-medium rounded-lg transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-all whitespace-nowrap cursor-pointer border ${
                 selectedCategory === 'All'
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-100'
+                  ? isDark 
+                    ? 'bg-slate-105 bg-slate-200 text-slate-900 border-slate-200' 
+                    : 'bg-slate-900 text-white border-slate-900'
+                  : isDark 
+                    ? 'bg-slate-950 text-slate-400 hover:bg-slate-900 hover:text-slate-300 border-slate-850' 
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'
               }`}
             >
               All
@@ -324,10 +339,14 @@ export default function SaaSPresetsCatalog({ onAdd, existingSubs }: SaaSPresetsC
                   key={cat}
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-2.5 py-1 text-[11px] font-medium rounded-lg transition-all whitespace-nowrap cursor-pointer ${
+                  className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-all whitespace-nowrap cursor-pointer border ${
                     selectedCategory === cat
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-100'
+                      ? isDark 
+                        ? 'bg-slate-105 bg-slate-200 text-slate-900 border-slate-200' 
+                        : 'bg-slate-900 text-white border-slate-900'
+                      : isDark 
+                        ? 'bg-slate-950 text-slate-400 hover:bg-slate-900 hover:text-slate-300 border-slate-850' 
+                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'
                   }`}
                 >
                   {displayCat}
@@ -361,33 +380,43 @@ export default function SaaSPresetsCatalog({ onAdd, existingSubs }: SaaSPresetsC
                   key={preset.id}
                   onFocus={() => initItemState(preset)}
                   onMouseEnter={() => initItemState(preset)}
-                  className="bg-slate-50 hover:bg-slate-50/80 border border-slate-100 hover:border-slate-200/80 rounded-xl p-3 transition-all space-y-2.5 relative"
+                  className={`border rounded-xl p-3 transition-all space-y-2.5 relative ${
+                    isDark 
+                      ? 'bg-slate-955/60 bg-slate-950 hover:bg-slate-950/80 border-slate-850 hover:border-slate-800' 
+                      : 'bg-slate-50 hover:bg-slate-50/80 border-slate-100 hover:border-slate-200/80'
+                  }`}
                 >
                   {/* Top line Info */}
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-xs text-slate-800 tracking-tight">{preset.name}</span>
+                        <span className={`font-bold text-xs tracking-tight ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{preset.name}</span>
                         {isAlreadyAdded && (
-                          <span className="text-[9px] bg-slate-200/60 text-slate-600 px-1.5 py-0.5 rounded-md font-mono font-medium">Included</span>
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded-md font-mono font-medium ${
+                            isDark ? 'bg-slate-800 text-slate-400' : 'bg-slate-200/60 text-slate-600'
+                          }`}>Included</span>
                         )}
                       </div>
-                      <span className="text-[10px] text-indigo-600/80 bg-indigo-50 border border-indigo-100/30 px-1.5 py-0.2 rounded-md font-medium mt-0.5 inline-block">{preset.category}</span>
-                      <p className="text-[11px] text-slate-500 mt-1 leading-normal italic font-sans">{preset.notes}</p>
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-md font-semibold mt-0.5 inline-block border ${
+                        isDark 
+                          ? 'text-indigo-400 bg-indigo-950/40 border-indigo-900/30' 
+                          : 'text-indigo-600/85 bg-indigo-50 border border-indigo-100/30'
+                      }`}>{preset.category}</span>
+                      <p className={`text-[11px] mt-1 leading-normal italic font-sans ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{preset.notes}</p>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-xs font-black text-rose-600 font-mono tracking-tight">${preset.defaultCost.toFixed(2)}</span>
+                      <span className="text-xs font-black text-rose-500 font-mono tracking-tight">${preset.defaultCost.toFixed(2)}</span>
                       <span className="text-[10px] text-slate-400 font-medium block">/{preset.defaultBillingCycle}</span>
                     </div>
                   </div>
 
                   {/* Inline interactive editor fields */}
-                  <div className="grid grid-cols-12 gap-1.5 pt-1.5 border-t border-dashed border-slate-200/70 items-end">
+                  <div className={`grid grid-cols-12 gap-1.5 pt-1.5 border-t border-dashed items-end ${isDark ? 'border-slate-800' : 'border-slate-200/70'}`}>
                     
                     {/* Currency Symbol & Pricing Input */}
                     <div className="col-span-4">
-                      <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5 font-display">Amount</label>
+                      <label className={`block text-[10px] font-semibold uppercase tracking-wider mb-0.5 font-display ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Amount</label>
                       <div className="relative">
                         <span className="absolute left-1.5 top-1 text-xs font-bold text-slate-400 font-mono">$</span>
                         <input
@@ -397,34 +426,46 @@ export default function SaaSPresetsCatalog({ onAdd, existingSubs }: SaaSPresetsC
                           value={state.cost}
                           onChange={(e) => handleFieldChange(preset.id, 'cost', e.target.value)}
                           placeholder={preset.defaultCost.toString()}
-                          className="w-full pl-4.5 pr-1 py-1 text-xs bg-white border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-indigo-500/20 focus:border-indigo-500 font-mono text-slate-800"
+                          className={`w-full pl-4.5 pr-1 py-1 text-xs border rounded-lg focus:outline-hidden focus:ring-1 focus:ring-indigo-500/20 focus:border-indigo-500 font-mono ${
+                            isDark 
+                              ? 'bg-slate-900 border-slate-800 text-slate-205 text-slate-200' 
+                              : 'bg-white border-slate-200 text-slate-800'
+                          }`}
                         />
                       </div>
                     </div>
 
                     {/* Period (Billing Cycle) Select */}
                     <div className="col-span-4">
-                      <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5 font-display">Period</label>
+                      <label className={`block text-[10px] font-semibold uppercase tracking-wider mb-0.5 font-display ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Period</label>
                       <select
                         value={state.billingCycle}
                         onChange={(e) => handleFieldChange(preset.id, 'billingCycle', e.target.value as BillingCycle)}
-                        className="w-full px-1.5 py-1 text-xs bg-white border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-700"
+                        className={`w-full px-1.5 py-1 text-xs border rounded-lg focus:outline-hidden focus:ring-1 focus:ring-indigo-500/20 focus:border-indigo-400 font-medium ${
+                          isDark 
+                            ? 'bg-slate-900 border-slate-800 text-slate-350 bg-slate-900' 
+                            : 'bg-white border-slate-200 text-slate-700'
+                        }`}
                       >
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                        <option value="quarterly">Quarterly</option>
-                        <option value="yearly">Yearly</option>
+                        <option value="weekly" className={isDark ? 'bg-slate-900' : ''}>Weekly</option>
+                        <option value="monthly" className={isDark ? 'bg-slate-900' : ''}>Monthly</option>
+                        <option value="quarterly" className={isDark ? 'bg-slate-900' : ''}>Quarterly</option>
+                        <option value="yearly" className={isDark ? 'bg-slate-900' : ''}>Yearly</option>
                       </select>
                     </div>
 
                     {/* Next Renewal Date */}
                     <div className="col-span-4">
-                      <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5 font-display">Renewal Date</label>
+                      <label className={`block text-[10px] font-semibold uppercase tracking-wider mb-0.5 font-display ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Renewal Date</label>
                       <input
                         type="date"
                         value={state.renewalDate}
                         onChange={(e) => handleFieldChange(preset.id, 'renewalDate', e.target.value)}
-                        className="w-full px-1.5 py-1 text-xs bg-white border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-700 font-sans"
+                        className={`w-full px-1.5 py-1 text-xs border rounded-lg focus:outline-hidden focus:ring-1 focus:ring-indigo-500/20 focus:border-indigo-400 font-sans ${
+                          isDark 
+                            ? 'bg-slate-900 border-slate-800 text-slate-350 bg-slate-900' 
+                            : 'bg-white border-slate-200 text-slate-700'
+                        }`}
                       />
                     </div>
 

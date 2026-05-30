@@ -5,10 +5,10 @@ import { formatCurrency } from '../utils';
 interface BobsWhiteboardAdvisorProps {
   monthlyBurn: number;
   activeCount: number;
-  isWhiteboardMode: boolean;
+  isDark?: boolean;
 }
 
-export default function BobsWhiteboardAdvisor({ monthlyBurn, activeCount, isWhiteboardMode }: BobsWhiteboardAdvisorProps) {
+export default function BobsWhiteboardAdvisor({ monthlyBurn, activeCount, isDark = false }: BobsWhiteboardAdvisorProps) {
   const [compoundingYears, setCompoundingYears] = useState<number>(10);
   const [returnRate, setReturnRate] = useState<number>(8); // 8% average index fund return
 
@@ -83,17 +83,17 @@ export default function BobsWhiteboardAdvisor({ monthlyBurn, activeCount, isWhit
   return (
     <div 
       className={`rounded-2xl border transition-all duration-300 p-5 p-6 relative ${
-        isWhiteboardMode
-          ? 'bg-amber-50/40 border-slate-900 border-2 shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] font-sans text-slate-900'
-          : 'bg-white border-slate-100 shadow-xs'
+        isDark
+          ? 'bg-slate-900 border-slate-800 shadow-sm text-slate-100'
+          : 'bg-white border-slate-100 shadow-xs text-slate-900'
       }`}
       id="bobs-whiteboard-advisor-card"
     >
       {/* Visual Marker Banner */}
-      <div className="absolute top-0 right-8 transform -translate-y-1/2">
+      <div className="absolute top-0 right-8 transform -translate-y-1/2 font-sans">
         <span className={`text-[10px] font-black tracking-widest uppercase px-3.5 py-1 rounded-full border shadow-xs inline-flex items-center gap-1.5 ${
-          isWhiteboardMode
-            ? 'bg-yellow-300 text-slate-900 border-slate-900 font-mono'
+          isDark
+            ? 'bg-slate-800 text-indigo-400 border-slate-700'
             : 'bg-indigo-600 text-white border-indigo-700'
         }`}>
           <Sparkles size={11} className="animate-spin" /> YouTube Viewer Companion
@@ -102,11 +102,11 @@ export default function BobsWhiteboardAdvisor({ monthlyBurn, activeCount, isWhit
 
       <div className="mb-5">
         <div className="flex items-center gap-2">
-          <div className={`p-2 rounded-xl ${isWhiteboardMode ? 'bg-yellow-200 border border-slate-900' : 'bg-rose-50 text-rose-600'}`}>
+          <div className={`p-2 rounded-xl ${isDark ? 'bg-rose-955/60 text-rose-400 bg-rose-950/40 border border-rose-900/40' : 'bg-rose-50 text-rose-600'}`}>
             <TrendingUp size={18} className="stroke-[2.5]" />
           </div>
           <div>
-            <h3 className="text-sm font-bold tracking-tight text-slate-900 font-display flex items-center gap-1.5">
+            <h3 className={`text-sm font-bold tracking-tight font-display flex items-center gap-1.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Bob Invests Companion Panel
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">Let's turn subscription leakage into compound investing fuel!</p>
@@ -116,13 +116,13 @@ export default function BobsWhiteboardAdvisor({ monthlyBurn, activeCount, isWhit
 
       {/* SECTION 1: Wealth Multiplier Simulator */}
       <div className={`rounded-xl p-4.5 mb-5 border ${
-        isWhiteboardMode
-          ? 'bg-white border-slate-900 border-dashed border-2 pattern-notebook'
-          : 'bg-slate-50 border-slate-100'
+        isDark
+          ? 'bg-slate-950/80 border-slate-800/80 text-slate-350'
+          : 'bg-slate-50 border-slate-100 text-slate-650'
       }`}>
-        <div className="flex items-center justify-between mb-3.5">
+        <div className="flex items-center justify-between mb-3.5 font-sans">
           <span className={`text-[11px] font-bold tracking-wider uppercase font-display leading-none px-2 py-1 rounded-md ${
-            isWhiteboardMode ? 'bg-yellow-200/80 text-slate-900' : 'bg-emerald-50 text-emerald-800'
+            isDark ? 'bg-indigo-950/60 text-indigo-400 border border-indigo-900/30' : 'bg-emerald-50 text-emerald-800'
           }`}>
             🧮 Bob's Compounded Wealth Multiplier
           </span>
@@ -169,11 +169,11 @@ export default function BobsWhiteboardAdvisor({ monthlyBurn, activeCount, isWhit
             </div>
 
             {/* Interactive sliders */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2 border-t border-slate-100">
+            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2 border-t ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
               <div id="multiplier-horizon-field">
                 <div className="flex justify-between text-[11px] mb-1">
-                  <span className="text-slate-500">Timeline Limit:</span>
-                  <span className="text-slate-800 font-bold font-mono">{compoundingYears} Yrs</span>
+                  <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>Timeline Limit:</span>
+                  <span className={`font-bold font-mono ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{compoundingYears} Yrs</span>
                 </div>
                 <input
                   type="range"
@@ -182,14 +182,14 @@ export default function BobsWhiteboardAdvisor({ monthlyBurn, activeCount, isWhit
                   step="1"
                   value={compoundingYears}
                   onChange={(e) => setCompoundingYears(parseInt(e.target.value))}
-                  className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-1 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 />
               </div>
 
               <div id="multiplier-rate-field">
                 <div className="flex justify-between text-[11px] mb-1">
-                  <span className="text-slate-500">Averaged ETF Return:</span>
-                  <span className="text-slate-800 font-bold font-mono">{returnRate}%</span>
+                  <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>Averaged ETF Return:</span>
+                  <span className={`font-bold font-mono ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{returnRate}%</span>
                 </div>
                 <input
                   type="range"
@@ -198,23 +198,25 @@ export default function BobsWhiteboardAdvisor({ monthlyBurn, activeCount, isWhit
                   step="0.5"
                   value={returnRate}
                   onChange={(e) => setReturnRate(parseFloat(e.target.value))}
-                  className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-1 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 />
               </div>
             </div>
 
-            <p className="text-[11px] text-slate-500 leading-normal italic text-center p-2 bg-yellow-100/40 rounded-lg border border-yellow-250/20">
+            <p className={`text-[11px] leading-normal italic text-center p-2 rounded-lg border ${
+              isDark ? 'bg-indigo-950/20 text-indigo-300 border-indigo-900/30' : 'bg-yellow-100/40 text-slate-500 border-yellow-200/25'
+            }`}>
               💡 Canceled subscriptions are instant cash. By adding this sum into a low-fee S&amp;P 500 capital stock index fund, you secure passive returns while resting!
             </p>
           </div>
         )}
       </div>
 
-      {/* SECTION 2: Whiteboard Explainers Notes */}
-      <div className="mb-5">
+      {/* SECTION 2: Advisor Explainers Notes */}
+      <div className="mb-5 font-sans">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-bold tracking-widest uppercase text-slate-400 font-display">
-            Bobby's Whiteboard Notebook
+            Bobby's Advisor Notebook
           </span>
           <div className="flex gap-1">
             {tips.map((_, idx) => (
@@ -228,22 +230,22 @@ export default function BobsWhiteboardAdvisor({ monthlyBurn, activeCount, isWhit
                     ? 'bg-rose-500 scale-125' 
                     : 'bg-slate-300 hover:bg-slate-400'
                 }`}
-                title={`View whiteboard tip ${idx + 1}`}
+                title={`View advisor tip ${idx + 1}`}
               />
             ))}
           </div>
         </div>
 
         <div className={`p-4 rounded-xl border transition-all ${
-          isWhiteboardMode
-            ? 'bg-yellow-50/50 border-slate-900 border-2 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]'
-            : 'bg-indigo-50/30 border-indigo-100/50'
+          isDark
+            ? 'bg-slate-950 border-slate-800 text-slate-300'
+            : 'bg-indigo-50/20 border-indigo-100/50'
         }`}>
-          <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5 font-display mb-1">
+          <h4 className={`text-xs font-bold flex items-center gap-1.5 font-display mb-1 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
             <Bookmark size={12} className="text-rose-500" />
             {tips[activeTip].title}
           </h4>
-          <p className="text-xs text-slate-600 leading-relaxed font-sans mt-0.5">
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-sans mt-0.5">
             {tips[activeTip].content}
           </p>
           
@@ -251,22 +253,24 @@ export default function BobsWhiteboardAdvisor({ monthlyBurn, activeCount, isWhit
             <button
               type="button"
               onClick={() => setActiveTip((prev) => (prev + 1) % tips.length)}
-              className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 uppercase tracking-wider flex items-center gap-0.5 cursor-pointer"
+              className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 uppercase tracking-wider flex items-center gap-0.5 cursor-pointer"
             >
-              Next Whiteboard Tip <ChevronRight size={10} />
+              Next Advisor Tip <ChevronRight size={10} />
             </button>
           </div>
         </div>
       </div>
 
       {/* SECTION 3: YouTube Viewer Challenge Tracker */}
-      <div className={`border-t pt-4 ${isWhiteboardMode ? 'border-slate-300' : 'border-slate-100'}`}>
-        <div className="flex items-center justify-between mb-3">
+      <div className={`border-t pt-4 ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
+        <div className="flex items-center justify-between mb-3 font-sans">
           <div>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-display">Viewer Challenge Block</span>
-            <p className="text-xs font-bold text-slate-900 mt-0.5">Bobby's Subscription Bleed Mission</p>
+            <p className={`text-xs font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>Bobby's Subscription Bleed Mission</p>
           </div>
-          <span className="text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md font-mono">
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-md font-mono ${
+            isDark ? 'text-indigo-400 bg-indigo-950/50 border border-indigo-900/35' : 'text-indigo-600 bg-indigo-50 border border-indigo-100'
+          }`}>
             {challengeScore}/5 Crushed
           </span>
         </div>
@@ -283,8 +287,12 @@ export default function BobsWhiteboardAdvisor({ monthlyBurn, activeCount, isWhit
               key={item.key} 
               className={`flex items-start gap-2.5 p-2 rounded-lg cursor-pointer transition-all border ${
                 challengeState[item.key]
-                  ? 'bg-emerald-50/50 border-emerald-150/50 text-slate-700'
-                  : 'bg-slate-50/20 border-transparent hover:bg-slate-50/60'
+                  ? isDark
+                    ? 'bg-emerald-950/20 border-emerald-900 text-slate-200'
+                    : 'bg-emerald-50/50 border-emerald-150/50 text-slate-700'
+                  : isDark
+                    ? 'bg-slate-950/30 border-transparent hover:bg-slate-950/60'
+                    : 'bg-slate-50/20 border-transparent hover:bg-slate-50/60'
               }`}
             >
               <input
