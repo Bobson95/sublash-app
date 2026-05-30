@@ -1,0 +1,6 @@
+{
+  "name": "SaaS Subscription Auditor",
+  "description": "A privacy-first interactive calculator to audit SaaS subscription costs, view sticker shock projections, and export data securely.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
