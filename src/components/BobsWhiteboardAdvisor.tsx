@@ -204,7 +204,7 @@ export default function BobsWhiteboardAdvisor({ monthlyBurn, activeCount, isWhit
             </div>
 
             <p className="text-[11px] text-slate-500 leading-normal italic text-center p-2 bg-yellow-100/40 rounded-lg border border-yellow-250/20">
-              💡 **Bobby's Explainer**: Canceled subscriptions are instant cash. By adding this sum into a low-fee S&amp;P 500 capital stock index fund, you secure passive returns while resting!
+              💡 Canceled subscriptions are instant cash. By adding this sum into a low-fee S&amp;P 500 capital stock index fund, you secure passive returns while resting!
             </p>
           </div>
         )}
