@@ -65,12 +65,35 @@ export default function App() {
     }
   };
 
+  const handleDeleteMultipleSubscription = (ids: string[]) => {
+    if (ids.length === 0) return;
+    const confirmDelete = window.confirm(
+      `Are you sure you want to remove the ${ids.length} selected subscription(s) from your audit records?`
+    );
+    if (confirmDelete) {
+      setSubscriptions(prev => prev.filter(s => !ids.includes(s.id)));
+    }
+  };
+
   const handleToggleStatus = (id: string) => {
     setSubscriptions(prev => prev.map(sub => {
       if (sub.id === id) {
         return {
           ...sub,
           status: sub.status === 'active' ? 'paused' : 'active'
+        };
+      }
+      return sub;
+    }));
+  };
+
+  const handleToggleMultipleStatus = (ids: string[], targetStatus?: 'active' | 'paused') => {
+    if (ids.length === 0) return;
+    setSubscriptions(prev => prev.map(sub => {
+      if (ids.includes(sub.id)) {
+        return {
+          ...sub,
+          status: targetStatus ? targetStatus : (sub.status === 'active' ? 'paused' : 'active')
         };
       }
       return sub;
@@ -308,6 +331,8 @@ export default function App() {
                 subscriptions={subscriptions} 
                 onDelete={handleDeleteSubscription}
                 onToggleStatus={handleToggleStatus}
+                onDeleteMultiple={handleDeleteMultipleSubscription}
+                onToggleStatusMultiple={handleToggleMultipleStatus}
                 isDark={isDark}
               />
             </div>

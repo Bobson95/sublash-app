@@ -12,6 +12,8 @@ interface SubscriptionListProps {
   subscriptions: Subscription[];
   onDelete: (id: string) => void;
   onToggleStatus: (id: string) => void;
+  onDeleteMultiple?: (ids: string[]) => void;
+  onToggleStatusMultiple?: (ids: string[], targetStatus?: 'active' | 'paused') => void;
   isDark?: boolean;
 }
 
@@ -19,6 +21,8 @@ export default function SubscriptionList({
   subscriptions, 
   onDelete, 
   onToggleStatus,
+  onDeleteMultiple,
+  onToggleStatusMultiple,
   isDark = false
 }: SubscriptionListProps) {
   const [search, setSearch] = useState('');
@@ -74,9 +78,7 @@ export default function SubscriptionList({
     if (e.target.checked) {
       const allChecked: Record<string, boolean> = {};
       filteredSubscriptions.forEach(sub => {
-        if (sub.status === 'active') {
-          allChecked[sub.id] = true;
-        }
+        allChecked[sub.id] = true;
       });
       setSelectedIds(allChecked);
     } else {
@@ -84,8 +86,35 @@ export default function SubscriptionList({
     }
   };
 
-  // Audit Calculations
+  // Audit Calculations & Bulk Action Handlers
   const selectedList = Object.keys(selectedIds).filter(id => selectedIds[id]);
+  const selectedCount = selectedList.length;
+
+  const handleBulkDelete = () => {
+    if (selectedList.length === 0) return;
+    if (onDeleteMultiple) {
+      onDeleteMultiple(selectedList);
+    } else {
+      selectedList.forEach(id => onDelete(id));
+    }
+    setSelectedIds({});
+  };
+
+  const handleBulkToggleStatus = (targetStatus: 'active' | 'paused') => {
+    if (selectedList.length === 0) return;
+    if (onToggleStatusMultiple) {
+      onToggleStatusMultiple(selectedList, targetStatus);
+    } else {
+      selectedList.forEach(id => {
+        const sub = subscriptions.find(s => s.id === id);
+        if (sub && sub.status !== targetStatus) {
+          onToggleStatus(id);
+        }
+      });
+    }
+    setSelectedIds({});
+  };
+
   const simulatedSavingsMonthly = selectedList.reduce((acc, id) => {
     const sub = subscriptions.find(s => s.id === id);
     if (sub && sub.status === 'active') {
@@ -208,6 +237,87 @@ export default function SubscriptionList({
       <div className={`rounded-2xl border overflow-hidden shadow-xs transition-all duration-300 ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100'
       }`} id="ledger-table-container">
+        {selectedCount > 0 && (
+          <div className={`flex flex-col sm:flex-row items-stretch sm:items-center justify-between px-4 py-3 border-b text-xs transition-all duration-200 ${
+            isDark 
+              ? 'bg-slate-950 border-slate-800 text-slate-200' 
+              : 'bg-indigo-50 border-slate-200 text-slate-800'
+          }`} id="bulk-action-bar">
+            <div className="flex items-center gap-2">
+              <span className={`inline-flex items-center justify-center font-bold px-2 py-0.5 rounded-full ${
+                isDark ? 'bg-indigo-900 text-indigo-300 border border-indigo-800' : 'bg-indigo-200 text-indigo-800'
+              }`}>
+                {selectedCount}
+              </span>
+              <span className="font-semibold">subscriptions selected</span>
+              
+              {/* Visual line divider */}
+              <div className={`hidden sm:block h-4 w-px mx-2 ${isDark ? 'bg-slate-800' : 'bg-indigo-200'}`} />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
+              {/* Bulk Pause action */}
+              <button
+                type="button"
+                onClick={() => handleBulkToggleStatus('paused')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer select-none ${
+                  isDark 
+                    ? 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800 hover:text-white' 
+                    : 'bg-white text-slate-700 border-slate-205 border-slate-200 hover:bg-slate-50 hover:text-slate-900 shadow-3xs'
+                }`}
+                title="Pause selected subscriptions"
+              >
+                <Pause size={12} className="text-slate-500 fill-slate-500" />
+                <span>Pause Selected</span>
+              </button>
+
+              {/* Bulk Resume/Activate action */}
+              <button
+                type="button"
+                onClick={() => handleBulkToggleStatus('active')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer select-none ${
+                  isDark 
+                    ? 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800 hover:text-white' 
+                    : 'bg-white text-slate-700 border-slate-205 border-slate-200 hover:bg-slate-50 hover:text-slate-900 shadow-3xs'
+                }`}
+                title="Activate selected subscriptions"
+              >
+                <Play size={12} className="text-slate-500 fill-slate-500" />
+                <span>Activate Selected</span>
+              </button>
+
+              {/* Bulk Delete action */}
+              <button
+                type="button"
+                onClick={handleBulkDelete}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer select-none ${
+                  isDark 
+                    ? 'bg-rose-950/40 text-rose-400 border-rose-900/60 hover:bg-rose-900/50 hover:text-rose-300' 
+                    : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100/80 hover:text-rose-800 shadow-3xs'
+                }`}
+                title="Delete multiple selected subscriptions"
+              >
+                <Trash2 size={12} />
+                <span>Delete Selected</span>
+              </button>
+
+              {/* Visual line divider */}
+              <div className={`h-4 w-px mx-1 ${isDark ? 'bg-slate-800' : 'bg-indigo-200'}`} />
+
+              {/* Uncheck / Cancel action */}
+              <button
+                type="button"
+                onClick={() => setSelectedIds({})}
+                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                  isDark ? 'text-slate-500 hover:text-slate-300 hover:bg-slate-800' : 'text-slate-400 hover:text-slate-600 hover:bg-indigo-100'
+                }`}
+                title="Clear selection"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+        )}
         {filteredSubscriptions.length === 0 ? (
           <div className="p-12 text-center text-slate-500" id="ledger-empty-state">
             <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -228,9 +338,9 @@ export default function SubscriptionList({
                       id="checkbox-select-all"
                       type="checkbox"
                       onChange={handleSelectAll}
-                      checked={filteredSubscriptions.length > 0 && filteredSubscriptions.every(s => s.status !== 'active' || selectedIds[s.id])}
+                      checked={filteredSubscriptions.length > 0 && filteredSubscriptions.every(s => selectedIds[s.id])}
                       className="w-4 h-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                      title="Select all active for simulated audit"
+                      title="Select all shown subscriptions on this view"
                     />
                   </th>
                   <th className={`p-4 font-display font-semibold text-xs uppercase tracking-wider ${
@@ -300,22 +410,21 @@ export default function SubscriptionList({
                       }`}
                       id={`row-${sub.id}`}
                     >
-                      {/* Checkbox selector for simulations */}
+                      {/* Checkbox selector for simulations & bulk actions */}
                       <td className="p-4 text-center">
                         <input
                           id={`checkbox-audit-${sub.id}`}
                           type="checkbox"
-                          disabled={isPaused}
                           checked={isSelectedForAudit}
                           onChange={() => handleSelectSub(sub.id)}
-                          className="w-4 h-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-                          title={isPaused ? "First reactivate subscription to audit it" : "Select to simulate cancellation"}
+                          className="w-4 h-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                          title="Select subscription for bulk action or audit simulation"
                         />
                       </td>
 
                       {/* Name & Url & Notes */}
                       <td className="p-4 max-w-xs md:max-w-sm">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className={`font-semibold text-sm font-sans tracking-tight ${
                             isDark ? 'text-slate-200' : 'text-slate-800'
                           }`}>
@@ -331,6 +440,16 @@ export default function SubscriptionList({
                             >
                               <ExternalLink size={12} />
                             </a>
+                          )}
+                          {daysLeft !== null && daysLeft >= 0 && daysLeft <= 7 && (
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold border font-mono uppercase tracking-wider animate-pulse ${
+                              isDark 
+                                ? 'bg-amber-950/40 text-amber-400 border-amber-900/50' 
+                                : 'bg-amber-50 text-amber-700 border-amber-200 shadow-3xs'
+                            }`} title={`Renews in ${daysLeft} days! Near deadline warning.`}>
+                              <AlertCircle size={9} className="stroke-[2.5]" />
+                              Expiring Soon ({daysLeft}d)
+                            </span>
                           )}
                         </div>
                         {sub.notes && (
